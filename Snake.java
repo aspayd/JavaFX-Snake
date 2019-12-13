@@ -6,10 +6,13 @@ import javafx.scene.paint.Color;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Snake player object
+ */
 public class Snake extends GameObject{
 
-    private List<BodyPart> snake;
-    private short[] velocity = new short[2]; // { x vel, y vel }
+    private List<BodyPart> snake; // List of the snake's body pieces
+    private short[] velocity = new short[2]; // The snake's velocity => { x vel, y vel }
 
     public Snake(int x, int y, int width, int height) {
         super(x, y, width, height);
@@ -22,12 +25,19 @@ public class Snake extends GameObject{
         velocity[1] = 0;
     }
 
+    /**
+     * Eat a piece of food
+     * @param food - food object
+     */
     public void eat(Food food) {
-        BodyPart tail = snake.get(snake.size() - 1);
-        snake.add(new BodyPart(tail.getX(), tail.getY(), tail.getWidth(), tail.getHeight()));
-        food.spawnFood();
+        BodyPart tail = snake.get(snake.size() - 1); // Get the end of the snake
+        snake.add(new BodyPart(tail.getX(), tail.getY(), tail.getWidth(), tail.getHeight())); // Add a new body part to the tail
+        food.spawnFood(); // Move food to a new random location
     }
 
+    /**
+     * Snake behavior logic (moving the snake)
+     */
     @Override
     public void tick() {
         // Move the body
@@ -44,13 +54,18 @@ public class Snake extends GameObject{
         restrictCoordinates();
     }
 
+    /**
+     * Restrict the snake from moving outside of the grid
+     */
     private void restrictCoordinates() {
+        // If x is past a boundary, set it to the ege
         if (getX() < 0) {
             setX(0);
         } else if (getX() > Game.WIDTH - getWidth()) {
             setX(Game.WIDTH - getWidth());
         }
 
+        // If y is past a boundary, set it to the edge
         if (getY() < 0) {
             setY(0);
         } else if (getY() > Game.HEIGHT - getHeight()) {
@@ -58,16 +73,24 @@ public class Snake extends GameObject{
         }
     }
 
+    /**
+     * Check whether or not the snake has died
+     * @return True if the snake is dead, False otherwise
+     */
     public boolean isDead() {
-        boolean isDead = false;
+        boolean isDead = false; // Start out by assuming the snake is not dead
+        // If the snake size is only 2, check if the two pieces have matching coordinates
         if (snake.size() == 2) {
             BodyPart tail = snake.get(1);
             if (tail.getX() == getX() && tail.getY() == getY()) {
+                // The coordinates match, so the snake is dead
                 isDead = true;
             }
         } else {
+            // The snake is longer than 2, so loop through the body
             for (int i = 1; i < snake.size() - 1; i++) {
                 if (snake.get(i).getX() == getX() && snake.get(i).getY() == getY()) {
+                    // The head hit a body piece, so the snake has died.
                     isDead = true;
                 }
             }
@@ -144,11 +167,19 @@ public class Snake extends GameObject{
         return snake.size();
     }
 
+    /**
+     * BodyPart subclass
+     * This holds the information for each individual body part of the snake
+     */
     private class BodyPart extends GameObject {
         public BodyPart(int x, int y, int width, int height) {
             super(x, y, width, height);
         }
 
+        /**
+         * Draw each body part on the canvas
+         * @param gc
+         */
         @Override
         public void draw(GraphicsContext gc) {
             gc.setFill(Color.GREEN);
